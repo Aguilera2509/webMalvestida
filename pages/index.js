@@ -1,8 +1,8 @@
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import styles from '../styles/Home.module.css'
-import { LinksPages } from './links';
-import { Loader } from './loader';
+import { LinksPages } from '../components/links';
+import { Loader } from '../components/loader';
 
 let page = 10
 
@@ -57,7 +57,7 @@ export default function Home() {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to <a href="https://malvestida.com/" target="_blank">Malvestidas&apos;s notices</a>
+          Welcome to <a href="https://malvestida.com/" target="_blank" rel="noreferrer">Malvestidas&apos;s notices</a>
         </h1>
 
         {!loader &&
@@ -73,7 +73,9 @@ export default function Home() {
             return(
               <div className='d-flex justify-content-center' key={malvestida.id}>
               <div className={styles.card}>
-                <img src={malvestida._embedded["wp:featuredmedia"][0].source_url} className="card-img-top" alt={malvestida.title.rendered} />
+                <picture>
+                  <img src={malvestida._embedded["wp:featuredmedia"][0].source_url} className="card-img-top" alt={malvestida.title.rendered} />
+                </picture>
                 <div className="card-body">
                   <h5 className="card-title">{malvestida.title.rendered}</h5>
                   <br />
@@ -88,7 +90,7 @@ export default function Home() {
                   <br />
                   <article dangerouslySetInnerHTML={{ __html:malvestida.content.rendered }}></article>
                   <br/>
-                  <a href={malvestida.guid.rendered} target="_blank" className={styles.oficialPage}>Leer en la pagina oficial</a>
+                  <a href={malvestida.guid.rendered} target="_blank" className={styles.oficialPage} rel="noreferrer">Leer en la pagina oficial</a>
                 </details>
               </div>
               </div>
