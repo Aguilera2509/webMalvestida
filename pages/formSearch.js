@@ -6,9 +6,9 @@ export const FormSearch = ({ setValueSearch, setWebMalvestidas, setDataExists })
 
     function handleSubmit(e){
         e.preventDefault()
-        setWebMalvestidas([])
-        setDataExists(true)
-        setValueSearch(something)
+        setWebMalvestidas([]) //restart variable webMalvestidas when search again
+        setDataExists(true) 
+        setValueSearch(something) //Change value of valueSearch for search posts
     }
 
     return(

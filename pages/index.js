@@ -7,22 +7,28 @@ import { Loader } from './loader';
 let page = 10
 
 export default function Home() {
-  const [scrollY, setScrollY] = useState(0)
-  const [outerY, setOuterY] = useState(1)
+  const [scrollY, setScrollY] = useState(0) //Variable get move scroll
+  const [outerY, setOuterY] = useState(1) //Variable get size windown only Y.
   const [loader, setLoader] = useState(true)
-  const [webMalvestidas, setWebMalvestidas] = useState([])
+  const [catchErr, setCatchErr] = useState(false) //If there is issues with FETCH
+  const [webMalvestidas, setWebMalvestidas] = useState([]) //all posts data
 
   async function postsMalvestidas(){
-    const res = await fetch(`https://malvestida.com/wp-json/wp/v2/posts?_embed&per_page=${page}`);
-    const data = await res.json()
-    setWebMalvestidas(data)
-    setLoader(false)
+    try{
+      const res = await fetch(`https://malvestida.com/wp-json/wp/v2/posts?_embed&per_page=${page}`);
+      const data = await res.json()
+      setWebMalvestidas(data)
+    } catch(err){
+      setCatchErr(true)
+    } finally{
+      setLoader(false)
+    }
   }
 
   useEffect(()=>{
-    postsMalvestidas()
-
-    const handleScroll = () => {
+    postsMalvestidas() //Get pots malvestida.com \\ function line 15 to 20
+    //Handle infinite scroll
+    const handleScroll = () => {        
       setScrollY(window.scrollY);
       setOuterY(document.body.offsetHeight-window.innerHeight)
     }
@@ -32,12 +38,12 @@ export default function Home() {
       window.removeEventListener("scroll", handleScroll);
     };
   },[page])
-
+  //Detect when scroll is completely down for load more data
   if(scrollY === outerY && !loader){
-    //console.log("Hello W0rld")
-    page = page + 5
-    setScrollY(0)
     setLoader(true)
+    setScrollY(0)
+    //console.log("Hello W0rld")
+    page = page + 5 //How many new data get 
   }
 
   return (
@@ -58,8 +64,12 @@ export default function Home() {
           <LinksPages />
         }
 
+        {catchErr &&
+          <h5>Error with request, try later</h5>
+        }
+
         <div>
-          {webMalvestidas.map(malvestida => {
+          {webMalvestidas.length !== 0 && webMalvestidas.map(malvestida => {
             return(
               <div className='d-flex justify-content-center' key={malvestida.id}>
               <div className={styles.card}>

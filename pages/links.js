@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
 
+//This function determine if you are in home o search activating kind of color background of button 
 export const LinksPages = () =>{
   const router = useRouter()
   let styleBtn = "btn btn-outline-dark"

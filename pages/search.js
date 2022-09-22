@@ -8,34 +8,40 @@ import { Loader } from './loader';
 let page = 10
 
 export default function searchData(){
-  const [scrollY, setScrollY] = useState(0)
-  const [outerY, setOuterY] = useState(1)
+  const [scrollY, setScrollY] = useState(0) //Variable get move scroll
+  const [outerY, setOuterY] = useState(1) //Variable get size windown only Y.
   const [loader, setLoader] = useState(false)
-  const [webMalvestidas, setWebMalvestidas] = useState([])
-  const [valueSearch, setValueSearch] = useState(null)
-  const [dataExists, setDataExists] = useState(true)
-  const [endData, setEndData] = useState(false)
+  const [webMalvestidas, setWebMalvestidas] = useState([]) //all posts data
+  const [valueSearch, setValueSearch] = useState(null) //Variable get value input for search that specific info
+  const [dataExists, setDataExists] = useState(true) //Determine if value of valueSearch exists 
+  const [endData, setEndData] = useState(false) //Determine when leave load data
+  const [catchErr, setCatchErr] = useState(false) //If there is issues with FETCH
 
   async function postsMalvestidas(){
-    const res = await fetch(`https://malvestida.com/wp-json/wp/v2/search?_embed&search=${valueSearch}&lang=en&per_page=${page}`);
-    const data = await res.json()
-    if(data.length === 0){
+    try{
+      const res = await fetch(`https://malvestida.com/wp-json/wp/v2/search?_embed&search=${valueSearch}&lang=en&per_page=${page}`);
+      const data = await res.json()
+      if(data.length === 0){
+        setLoader(false)
+        return setDataExists(false)
+      }
+      if(data.length < page){
+        setEndData(true)
+      }
+      setWebMalvestidas(data)
+    } catch(err){
+      setCatchErr(true)
+    } finally{
       setLoader(false)
-      return setDataExists(false)
     }
-    if(data.length < page){
-      setEndData(true)
-    }
-    setWebMalvestidas(data)
-    setLoader(false)
   }
-
+  //USEEFFECT pending of change in ValueSearch
   useEffect(()=>{
     if(valueSearch === null) return
     setLoader(true)
-    page = 10
+    page = 10 //restart page when search again
     postsMalvestidas()
-    
+    //Handle infinite scroll
     const handleScroll = () => {
       setScrollY(window.scrollY);
       setOuterY(document.body.offsetHeight-window.innerHeight)
@@ -46,17 +52,17 @@ export default function searchData(){
       window.removeEventListener("scroll", handleScroll);
     };
   },[valueSearch])
-
+  //USEEFFECT pending of change in page for infinte scroll
   useEffect(()=>{
     if(page === 10) return
     postsMalvestidas()
   }, [page])
-  
+  //Detect when scroll is completely down for load more data
   if(scrollY === outerY && !endData && !loader){
-    //console.log("Hello W0rld")
-    page = page + 5
-    setScrollY(0)
     setLoader(true)
+    setScrollY(0)
+    //console.log("Hello W0rld")
+    page = page + 5 //How many new data get 
   }
 
     return(
@@ -79,6 +85,10 @@ export default function searchData(){
 
           <FormSearch setValueSearch={setValueSearch} setWebMalvestidas={setWebMalvestidas} setDataExists={setDataExists} />
   
+          {catchErr &&
+            <h5>Error with request, try later</h5>
+          }
+
           <div>
             {!dataExists &&
               <p style={{color:"red", textAlign: "center"}}>Response to {valueSearch} Not Found</p>
